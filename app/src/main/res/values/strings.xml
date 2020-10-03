@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Book Search&amp;List</string>
+    <string name="search_button">Search</string>
+    <string name="editText_hint">Search Any book</string>
+    <string name="no_internet">No internet connection</string>
+    <string name="search_results">Search results:</string>
+</resources>
