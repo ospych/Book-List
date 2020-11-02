@@ -12,9 +12,12 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.booksearchlist.BookDatabase.Book;
 import com.example.booksearchlist.BookDatabase.SearchBody;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -62,15 +65,23 @@ public class MainActivity extends AppCompatActivity {
         placeHolderApi.getBooks(key, query)
                 .enqueue(new Callback<SearchBody>() {
                     @Override
-                    public void onResponse(Call<SearchBody> call, Response<SearchBody> response) {
-                        if (response.body() != null){
-                            adapter.setData(response.body().allBooks);
+                    public void onResponse(@NotNull Call<SearchBody> call, @NotNull Response<SearchBody> response) {
+                        try {
+                            if (response.body() != null){
+                                adapter.setData(response.body().allBooks);
+                            } else {
+                                Toast.makeText(MainActivity.this, "Enter book's name", Toast.LENGTH_SHORT).show();
+                                TextView noBook = findViewById(R.id.empty_view);
+                                noBook.setText("Can't find any book");
+                            }
+                        } catch (NullPointerException e) {
+                            Toast.makeText(MainActivity.this, "Enter the book", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
-                    public void onFailure(Call<SearchBody> call, Throwable t) {
-                        TextView noConnection = (TextView)findViewById(R.id.empty_view);
+                    public void onFailure(@NotNull Call<SearchBody> call, @NotNull Throwable t) {
+                        TextView noConnection = findViewById(R.id.empty_view);
                         noConnection.setText(R.string.no_internet);
                     }
                 });
