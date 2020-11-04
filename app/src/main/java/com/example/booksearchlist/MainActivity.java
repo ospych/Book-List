@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -62,33 +63,42 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         String key = "AIzaSyDhnCClfV8V92fimXFYocWCz_ETTE4Y0_k";
-        placeHolderApi.getBooks(key, query)
-                .enqueue(new Callback<SearchBody>() {
-                    @Override
-                    public void onResponse(@NotNull Call<SearchBody> call, @NotNull Response<SearchBody> response) {
-                        try {
-                            if (response.body() != null){
-                                adapter.setData(response.body().allBooks);
-                            } else {
-                                Toast.makeText(MainActivity.this, "Enter book's name", Toast.LENGTH_SHORT).show();
-                                TextView noBook = findViewById(R.id.empty_view);
-                                noBook.setText("Can't find any book");
+        try {
+            placeHolderApi.getBooks(key, query)
+                    .enqueue(new Callback<SearchBody>() {
+                        @Override
+                        public void onResponse(@NotNull Call<SearchBody> call, @NotNull Response<SearchBody> response) {
+                            try {
+                                if (response.body() != null){
+                                    adapter.setData(response.body().allBooks);
+                                    TextView noBook = findViewById(R.id.empty_view);
+                                    noBook.setText("");
+                                } else {
+                                    TextView noBook = findViewById(R.id.empty_view);
+                                    noBook.setText("Can't find any book");
+                                }
+                            } catch (NullPointerException e) {
+                                Toast.makeText(MainActivity.this, "Enter the book", Toast.LENGTH_SHORT).show();
                             }
-                        } catch (NullPointerException e) {
-                            Toast.makeText(MainActivity.this, "Enter the book", Toast.LENGTH_SHORT).show();
                         }
-                    }
 
-                    @Override
-                    public void onFailure(@NotNull Call<SearchBody> call, @NotNull Throwable t) {
-                        TextView noConnection = findViewById(R.id.empty_view);
-                        noConnection.setText(R.string.no_internet);
-                    }
-                });
+                        @Override
+                        public void onFailure(@NotNull Call<SearchBody> call, @NotNull Throwable t) {
+                            TextView noConnection = findViewById(R.id.empty_view);
+                            noConnection.setText(R.string.no_internet);
+                        }
+                    });
+        } catch (Exception e) {
+            Toast.makeText(MainActivity.this, "Enter the book", Toast.LENGTH_SHORT).show();
+        }
+
         //Use for hide keyboard
-        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(Objects.requireNonNull(getCurrentFocus()).getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        editText.setText("");
+        try {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(Objects.requireNonNull(getCurrentFocus()).getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        } catch (Exception e){
+            Toast.makeText(this, "Write something", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
